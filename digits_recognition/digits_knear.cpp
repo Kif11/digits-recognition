@@ -27,16 +27,15 @@ int main(int argc, char* argv[] ) {
     // Load labeled training data from CSV file.
     Ptr<TrainData> trainingData = TrainData::loadFromCSV(csv_traning_data, headerLineCount, responseStartIdx);
 
-    Mat true_labels = trainingData->getTrainResponses();
+    Mat trueLabels = trainingData->getTrainResponses();
     Mat samples = trainingData->getTrainSamples();
     
-    Mat trainLamples = true_labels(Range(0,35000), Range::all());
+    Mat trainLamples = trueLabels(Range(0,35000), Range::all());
     Mat trainSamples = samples(Range(0,35000), Range::all());
-    Mat testLabels = true_labels(Range(39000, 40000), Range::all());
+    Mat testLabels = trueLabels(Range(39000, 40000), Range::all());
     Mat testSamples = samples(Range(39000, 40000), Range::all());
-    Mat predLabels = Mat::zeros(testLabels.size(), CV_32F);
+    Mat predLabels = Mat::zeros(testLabels.size(), CV_8U);
     
-
     // Define our KNN classifier
     Ptr<KNearest> knn = KNearest::create();
     
@@ -49,6 +48,16 @@ int main(int argc, char* argv[] ) {
     
     // Predict using the labels of test data
     knn->findNearest(testSamples, k, predLabels);
+    
+    int totalCorrect = 0;
+    for (int i = 0; i < predLabels.rows; ++i) {
+        int* testLb = testLabels.ptr<int>(0, i);
+        int* predLb = predLabels.ptr<int>(0, i);
+        if (*testLb == *predLb) {
+            totalCorrect++;
+        }
+    }
+    cout << "Total correct " << totalCorrect << " out of " << testSamples.rows << endl;
     
     return 0;
 }
