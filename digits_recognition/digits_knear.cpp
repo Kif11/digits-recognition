@@ -17,39 +17,38 @@ using namespace std;
 using namespace ml;
 
 int main(int argc, char* argv[] ) {
-    // Load labeled training data (feature matrix) and label vector
-    String filename = "/Users/jacobrafati/Desktop/DigitRec-openCV/digits_recognition/MNIST-data/train.csv";
+
+    String csv_traning_data = "../../../MNIST-data/train.csv";
+    
     int headerLineCount = 1;
     int responseStartIdx = 0;
+    int k = 3;
 
-    Ptr<TrainData> trainingData = TrainData::loadFromCSV(filename, headerLineCount, responseStartIdx);
-    
-    // delete these lines if you are not going to use label vector and feature matrix
+    // Load labeled training data from CSV file.
+    Ptr<TrainData> trainingData = TrainData::loadFromCSV(csv_traning_data, headerLineCount, responseStartIdx);
+
     Mat true_labels = trainingData->getTrainResponses();
     Mat samples = trainingData->getTrainSamples();
     
+    Mat trainLamples = true_labels(Range(0,35000), Range::all());
+    Mat trainSamples = samples(Range(0,35000), Range::all());
+    Mat testLabels = true_labels(Range(39000, 40000), Range::all());
+    Mat testSamples = samples(Range(39000, 40000), Range::all());
+    Mat predLabels = Mat::zeros(testLabels.size(), CV_32F);
     
-    Mat train_labels = true_labels(Range(0,35000), Range::all());
-    Mat train_samples = samples(Range(0,35000), Range::all());
-    
-    Mat test_labels = true_labels(Range(35000, 40000) , Range::all());
-    Mat test_samples = samples(Range(35000, 40000) , Range::all());
-    
-    
-    Mat pred_labels;
 
-    // define a classifier
-    Ptr<KNearest> kclassifier = KNearest::create();
+    // Define our KNN classifier
+    Ptr<KNearest> knn = KNearest::create();
     
-    // train KNN (simply stores train data)
-    kclassifier->train(train_labels, ROW_SAMPLE, train_samples);
+    // Configure the KNN
+    knn->setDefaultK(k);
+    knn->setIsClassifier(true);
     
-    int k = 3;
+    // Train KNN (simply stores train data)
+    knn->train(trainSamples, ROW_SAMPLE, trainLamples);
     
-    
-    // predict using the labels of test data
-    kclassifier->findNearest(test_samples, k, pred_labels);
-
+    // Predict using the labels of test data
+    knn->findNearest(testSamples, k, predLabels);
     
     return 0;
 }
