@@ -52,7 +52,7 @@ Mat extract_features(Mat img) {
 int main(int argc, char* argv[] )
 {
     
-    Mat img = imread("/Volumes/EARTH/Code/cpp/opencv/test_data/numbers_01.jpg");
+    Mat img = imread("/Users/jacobrafati/Desktop/DigitRec-openCV/digits_recognition/test_data/numbers_01.jpg");
     Mat outImg = extract_features(img);
     
     imshow("outWindow", outImg);
