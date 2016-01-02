@@ -11,29 +11,37 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/ml.hpp>
+#include "utils.h"
 
 using namespace cv;
 using namespace std;
 using namespace ml;
 
 int main(int argc, char* argv[] ) {
-
-    String csv_traning_data = "../../../MNIST-data/train.csv";
     
-    int headerLineCount = 1;
-    int responseStartIdx = 0;
-    int k = 3;
+    int k = 5;
+    int totalSamples = 42000;
+    int totalTrain = 41500;
+    Range trainRows = Range(0, totalTrain);
+    Range testRows = Range(totalTrain, totalSamples);
+    Range allColumns = Range::all();
 
     // Load labeled training data from CSV file.
-    Ptr<TrainData> trainingData = TrainData::loadFromCSV(csv_traning_data, headerLineCount, responseStartIdx);
-
+    Ptr<TrainData> trainingData = loadData("../../../MNIST-data/train.csv");
+    
+    // Raw matrices from  CSV file.
     Mat trueLabels = trainingData->getTrainResponses();
     Mat samples = trainingData->getTrainSamples();
     
-    Mat trainLamples = trueLabels(Range(0,35000), Range::all());
-    Mat trainSamples = samples(Range(0,35000), Range::all());
-    Mat testLabels = trueLabels(Range(39000, 40000), Range::all());
-    Mat testSamples = samples(Range(39000, 40000), Range::all());
+    // Train matrices.
+    Mat trainLamples = trueLabels(trainRows, allColumns);
+    Mat trainSamples = samples(trainRows, allColumns);
+    
+    // Test matrices.
+    Mat testLabels = trueLabels(testRows, allColumns);
+    Mat testSamples = samples(testRows, allColumns);
+    
+    // Matrix for storing prediction labels.
     Mat predLabels = Mat::zeros(testLabels.size(), CV_8U);
     
     // Define our KNN classifier
@@ -50,11 +58,15 @@ int main(int argc, char* argv[] ) {
     knn->findNearest(testSamples, k, predLabels);
     
     int totalCorrect = 0;
+    // For each predicted label.
     for (int i = 0; i < predLabels.rows; ++i) {
-        int* testLb = testLabels.ptr<int>(0, i);
-        int* predLb = predLabels.ptr<int>(0, i);
+        float* testLb = testLabels.ptr<float>(0, i);
+        float* predLb = predLabels.ptr<float>(0, i);
         if (*testLb == *predLb) {
             totalCorrect++;
+        } else {
+            cout << "Predicted label: " << *predLb << endl;
+            displaySample (testSamples, i);
         }
     }
     cout << "Total correct " << totalCorrect << " out of " << testSamples.rows << endl;

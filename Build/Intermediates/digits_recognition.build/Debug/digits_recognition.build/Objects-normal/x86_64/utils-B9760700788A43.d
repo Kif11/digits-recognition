@@ -1,5 +1,6 @@
 dependencies: \
-  /Volumes/EARTH/Code/cpp/opencv/digits_recognition/digits_recognition/digits_knear.cpp \
+  /Volumes/EARTH/Code/cpp/opencv/digits_recognition/digits_recognition/utils.cpp \
+  /Volumes/EARTH/Code/cpp/opencv/digits_recognition/digits_recognition/utils.h \
   /usr/local/include/opencv2/opencv.hpp \
   /usr/local/include/opencv2/core.hpp \
   /usr/local/include/opencv2/core/cvdef.h \
@@ -48,5 +49,4 @@ dependencies: \
   /usr/local/include/opencv2/highgui/highgui_c.h \
   /usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
   /usr/local/include/opencv2/videoio/videoio_c.h \
-  /usr/local/include/opencv2/ml.hpp \
-  /Volumes/EARTH/Code/cpp/opencv/digits_recognition/digits_recognition/utils.h
+  /usr/local/include/opencv2/ml.hpp
