@@ -11,6 +11,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/ml.hpp>
+
 #include "utils.h"
 
 using namespace cv;
@@ -21,7 +22,7 @@ int main(int argc, char* argv[] ) {
     
     int k = 5;
     int totalSamples = 42000;
-    int totalTrain = 41500;
+    int totalTrain = totalSamples * 0.99;
     Range trainRows = Range(0, totalTrain);
     Range testRows = Range(totalTrain, totalSamples);
     Range allColumns = Range::all();
@@ -34,7 +35,7 @@ int main(int argc, char* argv[] ) {
     Mat samples = trainingData->getTrainSamples();
     
     // Train matrices.
-    Mat trainLamples = trueLabels(trainRows, allColumns);
+    Mat trainLabels = trueLabels(trainRows, allColumns);
     Mat trainSamples = samples(trainRows, allColumns);
     
     // Test matrices.
@@ -52,7 +53,7 @@ int main(int argc, char* argv[] ) {
     knn->setIsClassifier(true);
     
     // Train KNN (simply stores train data)
-    knn->train(trainSamples, ROW_SAMPLE, trainLamples);
+    knn->train(trainSamples, ROW_SAMPLE, trainLabels);
     
     // Predict using the labels of test data
     knn->findNearest(testSamples, k, predLabels);
@@ -64,10 +65,11 @@ int main(int argc, char* argv[] ) {
         float* predLb = predLabels.ptr<float>(0, i);
         if (*testLb == *predLb) {
             totalCorrect++;
-        } else {
-            cout << "Predicted label: " << *predLb << endl;
-            displaySample (testSamples, i);
         }
+//        else {
+//            cout << "Predicted label: " << *predLb << endl;
+//            displaySample (testSamples, i);
+//        }
     }
     cout << "Total correct " << totalCorrect << " out of " << testSamples.rows << endl;
     
